@@ -27,7 +27,7 @@ class File
 {
 public:
 	static void CreateRecursiveDirectories(char *);
-	static void DecryptAsset(const char *, u8 *, const int&);
+	static void DecryptAsset(const char *, u8 *, const u32&);
 	static void ExtractPack(const char *);
 };
 

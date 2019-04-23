@@ -12,10 +12,10 @@ void File::CreateRecursiveDirectories(char *path)
 	}
 }
 
-void File::DecryptAsset(const char* name, u8 *data, const int& len)
+void File::DecryptAsset(const char* name, u8 *data, const u32& len)
 {
-	for (int i = 0; i < len; i += 0x2000) {
-		int remainder = len - i < 0x2000 ? len - i : 0x2000;
+	for (u32 i = 0; i < len; i += 0x2000) {
+		u32 remainder = len - i < 0x2000 ? len - i : 0x2000;
 		XXTEA::Crypt((u32 *)&data[i], remainder / 4, Utils::GenerateKey(name, len, i));
 	}
 }
@@ -37,10 +37,10 @@ void File::ExtractPack(const char *name)
 		return;
 	}
 
-	int numAssets = *(u32 *)buf;
+	u32 numAssets = *(u32 *)buf;
 	buf += sizeof(u32);
 
-	for (int i = 0; i < numAssets; i++)
+	for (u32 i = 0; i < numAssets; i++)
 	{
 		u32 lenStr = *(u32 *)buf;
 		buf += sizeof(u32);
@@ -50,13 +50,13 @@ void File::ExtractPack(const char *name)
 		name[lenStr] = 0;
 		buf += lenStr;
 
-		int size1 = *(u32 *)buf;
+		u32 size1 = *(u32 *)buf;
 		buf += sizeof(u32);
 
-		int size2 = *(u32 *)buf;
+		u32 size2 = *(u32 *)buf;
 		buf += sizeof(u32);
 
-		int offset = *(u32 *)buf;
+		u32 offset = *(u32 *)buf;
 		buf += 0x14;
 
 		fseek(in, sizeof(PACKHeader) + header.Size1 + offset, SEEK_SET);

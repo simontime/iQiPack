@@ -11,12 +11,12 @@ constexpr u8 FixedKey[] = { 0xB0, 0xFF, 0xD0, 0xA0, 0x89, 0x00, 0x23, 0x81, 0x42
 class Utils
 {
 public:
-	static u32 Hash(const char *, int);
-	static u32 *GenerateKey(const char *, const int&, const int& = 0);
+	static u32 Hash(const char *, u32);
+	static u32 *GenerateKey(const char *, const u32&, const u32& = 0);
 };
 
 class XXTEA
 {
 public:
-	static void Crypt(u32 *, int, u32 *);
+	static void Crypt(u32 *, u32, u32 *);
 };
