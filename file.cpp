@@ -32,7 +32,7 @@ void File::ExtractPack(const char *name)
 
 	DecryptAsset("header", buf, header.Size1);
 
-	if (header.Magic != 'KCAP') {
+	if (header.Magic != 'PACK') {
 		std::cout << "Error: Invalid PAK file!" << std::endl;
 		return;
 	}
