@@ -51,7 +51,7 @@ void File::ExtractPack(const char *name, const char *path)
 		char *name = new char[lenStr + pathLen + 2];
 		char *hashname = new char[lenStr + 1];
 
-		std::memcpy(hashname, buf, lenStr);
+		memcpy(hashname, buf, lenStr);
 		hashname[lenStr] = 0;
 
 		sprintf(name, "%s/", path);
