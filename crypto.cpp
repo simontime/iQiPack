@@ -17,7 +17,7 @@ u32 *Utils::GenerateKey(const char *string, const u32& length, const u32& offset
 {
 	u32 *keyBuf = new u32[4]; // Allocate key buffer.
 
-	u32 lenStr = std::strlen(string); // Get length of input string.
+	u32 lenStr = strlen(string); // Get length of input string.
 
 	u32 base = 
 		(length ^ offset) ^ Hash(string, lenStr); // Generate our key base.
