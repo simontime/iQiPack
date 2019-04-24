@@ -4,15 +4,15 @@
 
 void File::CreateRecursiveDirectories(char *path)
 {
-	for (char *p = std::strchr(path + 1, '/');
-		p; p = std::strchr(p + 1, '/')) {
+	for (char *p = strchr(path + 1, '/');
+		p; p = strchr(p + 1, '/')) {
 		*p = '\0';
 		MKDIR(path);
 		*p = '/';
 	}
 }
 
-void File::DecryptAsset(const char* name, u8 *data, const u32& len)
+void File::DecryptAsset(const char *name, u8 *data, const u32& len)
 {
 	for (u32 i = 0; i < len; i += 0x2000) {
 		u32 remainder = len - i < 0x2000 ? len - i : 0x2000;
@@ -20,8 +20,11 @@ void File::DecryptAsset(const char* name, u8 *data, const u32& len)
 	}
 }
 
-void File::ExtractPack(const char *name)
+void File::ExtractPack(const char *name, const char *path)
 {
+	MKDIR(path);
+	u32 pathLen = std::strlen(path);
+
 	FILE *in = fopen(name, "rb");
 
 	PACKHeader header;
@@ -40,14 +43,15 @@ void File::ExtractPack(const char *name)
 	u32 numAssets = *(u32 *)buf;
 	buf += sizeof(u32);
 
-	for (u32 i = 0; i < numAssets; i++)
+	while (numAssets--)
 	{
 		u32 lenStr = *(u32 *)buf;
 		buf += sizeof(u32);
 
-		char *name = new char[lenStr + 1];
-		std::memcpy(name, buf, lenStr);
-		name[lenStr] = 0;
+		char *name = new char[lenStr + pathLen + 2];
+		sprintf(name, "%s/", path);
+		memcpy(name + pathLen + 1, buf, lenStr);
+		name[lenStr + pathLen + 1] = 0;
 		buf += lenStr;
 
 		u32 size1 = *(u32 *)buf;
@@ -80,5 +84,5 @@ void File::ExtractPack(const char *name)
 		delete fbuf;
 	}
 
-	delete buf;
+	std::cout << std::endl << "Done!" << std::endl;
 }
