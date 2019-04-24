@@ -23,7 +23,7 @@ void File::DecryptAsset(const char *name, u8 *data, const u32& len)
 void File::ExtractPack(const char *name, const char *path)
 {
 	MKDIR(path);
-	u32 pathLen = std::strlen(path);
+	u32 pathLen = strlen(path);
 
 	FILE *in = fopen(name, "rb");
 
