@@ -47,11 +47,18 @@ void File::ExtractPack(const char *name, const char *path)
 	{
 		u32 lenStr = *(u32 *)buf;
 		buf += sizeof(u32);
-
+		
 		char *name = new char[lenStr + pathLen + 2];
+		char *hashname = new char[lenStr + 1];
+
+		std::memcpy(hashname, buf, lenStr);
+		hashname[lenStr] = 0;
+
 		sprintf(name, "%s/", path);
+
 		memcpy(name + pathLen + 1, buf, lenStr);
 		name[lenStr + pathLen + 1] = 0;
+
 		buf += lenStr;
 
 		u32 size1 = *(u32 *)buf;
@@ -75,7 +82,7 @@ void File::ExtractPack(const char *name, const char *path)
 
 		fread(fbuf, 1, size1, in);
 
-		DecryptAsset(name, fbuf, size1);
+		DecryptAsset(hashname, fbuf, size1);
 
 		fwrite(fbuf, 1, size1, out);
 		fclose(out);
