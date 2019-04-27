@@ -1,6 +1,6 @@
 #include "crypto.h"
 
-u32 Utils::Hash(const char *string, const u32& length)
+u32 Utils::Hash(const char *string, const u32 length)
 {
 	u32 hash = 0x1505; // Initial hash value.
 
@@ -13,14 +13,13 @@ u32 Utils::Hash(const char *string, const u32& length)
 	return hash; // Return the computed hash.
 }
 
-u32 *Utils::GenerateKey(const char *string, const u32& length, const u32& offset)
+u32 *Utils::GenerateKey(const char *string, const u32 length, const u32 offset)
 {
 	u32 *keyBuf = new u32[4]; // Allocate key buffer.
 
 	u32 lenStr = strlen(string); // Get length of input string.
 
-	u32 base = 
-		(length ^ offset) ^ Hash(string, lenStr); // Generate our key base.
+	u32 base =  (length ^ offset) ^ Hash(string, lenStr); // Generate our key base.
 
 	keyBuf[0] = base; // Duplicate
 	keyBuf[1] = base; // it
@@ -33,10 +32,7 @@ u32 *Utils::GenerateKey(const char *string, const u32& length, const u32& offset
 	return keyBuf; // Return the computed key.
 }
 
-#define MX (((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4)) \
-			^ ((sum ^ y) + (key[(p & 3) ^ e] ^ z)))
-
-void XXTEA::Crypt(u32 *data, const u32& n, u32 *key)
+void XXTEA::Decrypt(u32 *data, const u32 n, u32 *key)
 {
 	u32 y, z, sum, p, rounds, e;
 
@@ -54,11 +50,11 @@ void XXTEA::Crypt(u32 *data, const u32& n, u32 *key)
 			for (p = n - 1; p > 0; p--)
 			{
 				z = data[p - 1];
-				y = data[p] -= MX;
+				y = data[p] -= MIX;
 			}
 
 			z = data[n - 1];
-			y = data[0] -= MX;
+			y = data[0] -= MIX;
 
 			sum -= Delta;
 		}

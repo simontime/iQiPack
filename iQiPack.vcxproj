@@ -152,12 +152,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="crypto.h" />
-    <ClInclude Include="file.h" />
+    <ClInclude Include="pack.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="file.cpp" />
-    <ClCompile Include="program.cpp" />
+    <ClCompile Include="pack.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="crypto.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
