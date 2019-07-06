@@ -2,10 +2,9 @@
 
 #include "pack.h"
 
-Pack::Pack(const char *inputFile, const char *outputDir)
+Pack::Pack(const char *inputFile)
 {
 	this->inputFile = inputFile;
-	this->outputDir = outputDir;
 }
 
 void Pack::CreateRecursiveDirectories(char *dirName)
@@ -28,7 +27,7 @@ void Pack::DecryptAsset(const char *name, u8 *data, const u32 length)
 	}
 }
 
-void Pack::Extract()
+void Pack::Extract(const char *outputDir)
 {
 	MKDIR(outputDir);
 	u32 pathLen = strlen(outputDir);
@@ -79,7 +78,7 @@ void Pack::Extract()
 		u32 offset = *(u32 *)buf; // Read the offset of the asset within the pack.
 		buf += 0x14;
 
-		fseek(in, sizeof(Header) + header.Size1 + offset, SEEK_SET); // Seek to its offset.
+		_fseeki64(in, sizeof(Header) + header.Size1 + offset, SEEK_SET); // Seek to its offset.
 
 		std::cout << "Extracting " << name << "..." << std::endl;
 

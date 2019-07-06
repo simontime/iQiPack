@@ -22,12 +22,11 @@ class Pack
 {
 private:
 	const char *inputFile;
-	const char *outputDir;
 
 	void CreateRecursiveDirectories(char *dirName);
 	void DecryptAsset(const char *name, u8 *data, const u32 length);
 
 public:
-	Pack(const char *inputFile, const char *outputDir);
-	void Extract();
+	Pack(const char *inputFile);
+	void Extract(const char *outputDir);
 };

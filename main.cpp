@@ -8,9 +8,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	Pack pack(argv[1], argv[2]);
+	Pack pack(argv[1]);
 
-	pack.Extract();
+	pack.Extract(argv[2]);
 
 	return 0;
 }
