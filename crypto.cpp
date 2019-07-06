@@ -8,7 +8,7 @@ namespace Utils
 
 		for (u32 i = 0; i < length; i++) // Perform hash loop for length of string.
 		{
-			hash = hash * 33;  // Multiply hash by 33.
+			hash *= 33;        // Multiply hash by 33.
 			hash ^= string[i]; // XOR the current state with a character from the string.
 		}
 
