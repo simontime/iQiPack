@@ -1,12 +1,12 @@
 #pragma once
 
-#include <iostream>
-#include <Windows.h>
-
 #include "crypto.h"
-#include "types.h"
 
-#define MKDIR(name) (CreateDirectoryA(name, NULL))
+#if _WIN32
+#define fseeko64 _fseeki64
+#endif
+
+namespace fs = std::experimental::filesystem;
 
 struct Header 
 {
@@ -21,12 +21,14 @@ struct Header
 class Pack
 {
 private:
-	const char *inputFile;
+	std::string inputFile;
 
-	void CreateRecursiveDirectories(char *dirName);
-	void DecryptAsset(const char *name, u8 *data, const u32 length);
+	void CreateRecursiveDirectories(const std::string dirName);
+	void DecryptAsset(const std::string name, u8 *data, const u32 length);
+	template <typename T> T Read(u8 **in);
+	void SeekForward(u8 **in, size_t pos);
 
 public:
-	Pack(const char *inputFile);
-	void Extract(const char *outputDir);
+	Pack(const std::string inputFile);
+	void Extract(const std::string outputDir);
 };

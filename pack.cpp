@@ -2,23 +2,27 @@
 
 #include "pack.h"
 
-Pack::Pack(const char *inputFile)
+Pack::Pack(const std::string inputFile)
 {
 	this->inputFile = inputFile;
 }
 
-void Pack::CreateRecursiveDirectories(char *dirName)
+void Pack::CreateRecursiveDirectories(const std::string dirName)
 {
-	for (char *p = strchr(dirName + 1, '/'); 
+	char *str = strdup(dirName.c_str());
+
+	for (char *p = strchr(str + 1, '/'); 
 		p; p = strchr(p + 1, '/'))
 	{
 		*p = '\0';
-		MKDIR(dirName);
+		fs::create_directories(str);
 		*p = '/';
 	}
+
+	delete[] str;
 }
 
-void Pack::DecryptAsset(const char *name, u8 *data, const u32 length)
+void Pack::DecryptAsset(const std::string name, u8 *data, const u32 length)
 {
 	for (u32 i = 0; i < length; i += 0x2000) // Decrypt in 0x2000 chunks until remaining length in file <0x2000.
 	{
@@ -27,12 +31,11 @@ void Pack::DecryptAsset(const char *name, u8 *data, const u32 length)
 	}
 }
 
-void Pack::Extract(const char *outputDir)
+void Pack::Extract(const std::string outputDir)
 {
-	MKDIR(outputDir);
-	u32 pathLen = strlen(outputDir);
+	fs::create_directories(outputDir);
 
-	FILE *in = fopen(inputFile, "rb");
+	FILE *in = fopen(inputFile.c_str(), "rb");
 
 	Header header;
 	fread(&header, sizeof(Header), 1, in);
@@ -48,56 +51,58 @@ void Pack::Extract(const char *outputDir)
 		return;
 	}
 
-	u32 numAssets = *(u32 *)buf; // 0x0-0x4 in the header is the total number of assets within.
-	buf += sizeof(u32);
+	u32 numAssets = Read<u32>(&buf); // 0x0-0x4 in the header is the total number of assets within.
 
 	while (numAssets--)
 	{
-		u32 lenStr = *(u32 *)buf; // The string is prepended with its length.
-		buf += sizeof(u32);
+		u32 lenStr = Read<u32>(&buf); // The string is prepended with its length.
 		
-		char *name = new char[lenStr + pathLen + 2];
-		char *hashname = new char[lenStr + 1];
+		std::string name = outputDir + '/', hashname;
 
-		memcpy(hashname, buf, lenStr); // Read the string.
-		hashname[lenStr] = 0;
+		for (u32 i = 0; i < lenStr; i++)
+			hashname += *buf++;
 
-		sprintf(name, "%s/", outputDir);
+		name += hashname;
 
-		memcpy(name + pathLen + 1, buf, lenStr); // Copy the filename into a second buffer for the output name.
-		name[lenStr + pathLen + 1] = 0;
+		FILE *out = fopen(name.c_str(), "wb");
 
-		buf += lenStr;
+		u32 size1  = Read<u32>(&buf); // Read the asset size.
+		u32 size2  = Read<u32>(&buf); // Read the duplicate of the asset size (why the fuck is this necessary?).
+		u32 offset = Read<u32>(&buf); // Read the offset of the asset within the pack.
 
-		u32 size1 = *(u32 *)buf; // Read the asset size.
-		buf += sizeof(u32);
+		SeekForward(&buf, 0x10);
 
-		u32 size2 = *(u32 *)buf; // Read the duplicate of the asset size (why the fuck is this necessary?).
-		buf += sizeof(u32);
-
-		u32 offset = *(u32 *)buf; // Read the offset of the asset within the pack.
-		buf += 0x14;
-
-		_fseeki64(in, sizeof(Header) + header.Size1 + offset, SEEK_SET); // Seek to its offset.
+		fseeko64(in, sizeof(Header) + header.Size1 + offset, SEEK_SET); // Seek to its offset.
 
 		std::cout << "Extracting " << name << "..." << std::endl;
 
 		CreateRecursiveDirectories(name); // Create recursive directories for the assets directory name.
 
-		FILE *out = fopen(name, "wb");
-
 		u8 *fbuf = new u8[size1];
 
 		fread(fbuf, 1, size1, in); // Read the asset data into a buffer.
-
 		DecryptAsset(hashname, fbuf, size1); // Decrypt the asset.
-
 		fwrite(fbuf, 1, size1, out); // Write the decrypted asset data into our newly created file.
+
 		fclose(out);
 
-		delete name;
-		delete fbuf;
+		delete[] fbuf;
 	}
 
+	fclose(in);
+
 	std::cout << std::endl << "Done!" << std::endl;
+}
+
+template <typename T>
+T Pack::Read(u8 **in)
+{
+	T buf = *reinterpret_cast<T *>(*in);
+	SeekForward(in, sizeof(T));
+	return buf;
+}
+
+void Pack::SeekForward(u8 **in, size_t pos)
+{
+	*in += pos;
 }
