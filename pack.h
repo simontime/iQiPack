@@ -23,7 +23,6 @@ class Pack
 private:
 	std::string inputFile;
 
-	void CreateRecursiveDirectories(const std::string dirName);
 	void DecryptAsset(const std::string name, u8 *data, const u32 length);
 	template <typename T> T Read(u8 **in);
 	void SeekForward(u8 **in, size_t pos);

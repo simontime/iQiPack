@@ -7,21 +7,6 @@ Pack::Pack(const std::string inputFile)
 	this->inputFile = inputFile;
 }
 
-void Pack::CreateRecursiveDirectories(const std::string dirName)
-{
-	char *str = strdup(dirName.c_str());
-
-	for (char *p = strchr(str + 1, '/'); 
-		p; p = strchr(p + 1, '/'))
-	{
-		*p = '\0';
-		fs::create_directories(str);
-		*p = '/';
-	}
-
-	delete[] str;
-}
-
 void Pack::DecryptAsset(const std::string name, u8 *data, const u32 length)
 {
 	for (u32 i = 0; i < length; i += 0x2000) // Decrypt in 0x2000 chunks until remaining length in file <0x2000.
@@ -64,6 +49,8 @@ void Pack::Extract(const std::string outputDir)
 
 		name += hashname;
 
+		fs::create_directories(name.substr(0, name.find_last_of('/'))); // Create recursive directories for the asset's directory name.
+
 		FILE *out = fopen(name.c_str(), "wb");
 
 		u32 size1  = Read<u32>(&buf); // Read the asset size.
@@ -75,8 +62,6 @@ void Pack::Extract(const std::string outputDir)
 		fseeko64(in, sizeof(Header) + header.Size1 + offset, SEEK_SET); // Seek to its offset.
 
 		std::cout << "Extracting " << name << "..." << std::endl;
-
-		CreateRecursiveDirectories(name); // Create recursive directories for the assets directory name.
 
 		u8 *fbuf = new u8[size1];
 
